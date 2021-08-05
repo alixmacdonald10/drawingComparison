@@ -2,14 +2,14 @@ import cv2
 from skimage.metrics import structural_similarity as compare_ssim
 import argparse
 import imutils
-import numpy as np
+from pdf2image import convert_from_path
 
- 
+
 
 def run(img1, img2):
     diffImg = SSIM(img1, img2)
     findDiff(diffImg, img1, img2)
-    
+
     
 def loadImage():
     # construct the argument parse and parse the arguments
@@ -19,10 +19,19 @@ def loadImage():
     ap.add_argument("-s", "--second", required=True,
         help="second")
     args = vars(ap.parse_args())
-    
+
+    img1Path = convert_from_path(args["first"])
+    img2Path = convert_from_path(args["second"])
+    imgPaths = [img1Path, img2Path]
+    # convert pdf to jpg
+    for i in range(0, 1):
+        pages = convert_from_path(f'{imgPaths[i]}.pdf')
+        for page in pages:
+            page.save(f'{imgPaths[i]}.jpg', 'JPEG')
+            
     # load the two input images
-    image1 = cv2.imread(args["first"])
-    image2 = cv2.imread(args["second"])
+    img1 = cv2.imread(f'{img1Path}.jpg')
+    img2 = cv2.imread(f'{img2Path}.jpg')
     
     return image1, image2
 
@@ -59,11 +68,12 @@ def findDiff(diff, img1, img2):
         cv2.rectangle(img2, (x, y), (x + w, y + h), (0, 0, 255), 2)
         
     # show and save the output images
-    cv2.imwrite("D:\\Scripts\\drawingComparison\\examples\\Revised_Bounding_Box.jpg", img2)
-    cv2.imwrite("D:\\Scripts\\drawingComparison\\examples\\Difference.jpg", diff)
+    cv2.imwrite("D:\\Scripts\\drawingComparison\\results\\Revised_Bounding_Box.jpg", img2)
+    cv2.imwrite("D:\\Scripts\\drawingComparison\\results\\Difference.jpg", diff)
     
 
 if __name__ == "__main__":
 
     image1, image2 = loadImage()
+    
     run(image1, image2)
