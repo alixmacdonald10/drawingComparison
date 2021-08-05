@@ -22,18 +22,18 @@ def loadImage():
     
     # load the two input images
     image1 = cv2.imread(args["first"])
-    # convert the images to grayscale
-    gray1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
     image2 = cv2.imread(args["second"])
-    gray2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
     
-    return gray1, gray2
+    return image1, image2
 
 
-def SSIM(gray1, gray2):
+def SSIM(image1, image2):
     # compute the Structural Similarity Index (SSIM)
     # The score represents the structural similarity index between the two input images. 
     # This value can fall into the range [-1, 1] with a value of one being a “perfect match”.
+    # convert the images to grayscale
+    gray1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
     (score, diff) = compare_ssim(gray1, gray2, full=True)
     diff = (diff * 255).astype("uint8")
     print(f"SSIM: {score}")
@@ -57,18 +57,10 @@ def findDiff(diff, img1, img2):
         (x, y, w, h) = cv2.boundingRect(c)
         cv2.rectangle(img1, (x, y), (x + w, y + h), (0, 0, 255), 2)
         cv2.rectangle(img2, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        
     # show and save the output images
-    # cv2.imshow("Original", img1)
-    normed_img1 = np.zeros(np.shape(img1))
-    img1 = cv2.normalize(img1, normed_img1, 0, 255, cv2.NORM_MINMAX)
-    cv2.imwrite("D:\\Scripts\\drawingComparison\\examples\\Original_Bounding_Box.jpg", img1)
-    # cv2.imshow("Revised", img2)
     cv2.imwrite("D:\\Scripts\\drawingComparison\\examples\\Revised_Bounding_Box.jpg", img2)
-    # cv2.imshow("Difference", diff)
     cv2.imwrite("D:\\Scripts\\drawingComparison\\examples\\Difference.jpg", diff)
-    # cv2.imshow("Thresh", thresh)
-    cv2.imwrite("D:\\Scripts\\drawingComparison\\examples\\Thresh.jpg", thresh)
-    # cv2.waitKey(0)  
     
 
 if __name__ == "__main__":
